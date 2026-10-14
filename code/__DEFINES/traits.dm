@@ -480,6 +480,11 @@
 #define TRAIT_PREVENT_Z_FALL "Prevent Z fall" // DO NOT GIVE THIS UNDER NORMAL CIRCUMSTANCES
 //OV File End
 
+//traits for TAT system
+#define TRAIT_OUTLANDER "Outlander"
+#define TRAIT_PARRYEXPERT "Parry Expert"// PK + CC + TA TAT system perk, maybe port related ronin class if needed
+#define TRAIT_MANGLED_JAW "Mangled Jaw"
+
 // If you want description to show up you gotta have the trait name defined BEFORE this lol
 
 GLOBAL_LIST_INIT(roguetraits, list(
@@ -780,8 +785,12 @@ GLOBAL_LIST_INIT(roguetraits, list(
 	TRAIT_SUNLIGHT_SENSITIVE = span_danger("Put on those shades and wave to yesterday, 'cause the sunlight hurts my eyes!"),
 	//OV Add Start
 	TRAIT_LYFE_DRINK = span_bloody("I hunger for fresh lyfe's blood."),
-	TRAIT_FEYCURSED = span_info("I was born, or rescued from certain death, under strange circumstances, unaided by the divine.")
+	TRAIT_FEYCURSED = span_info("I was born, or rescued from certain death, under strange circumstances, unaided by the divine."),
 	//OV Add End
+	//opk add start
+	TRAIT_OUTLANDER = span_info("The locals see me as not of their land."),
+	TRAIT_PARRYEXPERT = span_info("I am much better at parrying incoming strikes, having a more high probability of deflecting a blow with my weapon.")
+	//opk add end
 ))
 
 // trait accessor defines

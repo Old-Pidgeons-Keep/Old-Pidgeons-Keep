@@ -219,6 +219,10 @@
 	if(HAS_TRAIT(attacker, TRAIT_ARMOUR_LIKED))
 		if(HAS_TRAIT(attacker, TRAIT_FENCERDEXTERITY))
 			prob2defend -= 5
+	//OPK + CC + TA edit
+	if(HAS_TRAIT(src, TRAIT_PARRYEXPERT))
+		prob2defend += 30
+	//OPK + CC + TA edit
 
 	prob2defend = clamp(prob2defend, 5, 90)
 	if(HAS_TRAIT(user, TRAIT_HARDSHELL) && defender.client)	//Dwarf-merc specific limitation w/ their armor on in pvp

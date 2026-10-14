@@ -122,7 +122,19 @@
 			weapons += "Solar Scepter"
 		if(/datum/patron/divine/noc)
 			weapons += "Lunar Crescent"
-
+	//opk + cc add
+	var/techniques = list("Dropkick - Pushback + Extra Damage", "Chokeslam - Stamina Damage", "Stunner - Dazed Debuff", "Headbutt - Vulnerable Debuff") // cool wrestling moves
+	var/technique_choice = input(H,"Choose your TECHNIQUE.", "TOSS THEM.") as anything in techniques
+	switch(technique_choice)
+		if("Dropkick - Pushback + Extra Damage")
+			H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/dropkick)
+		if("Chokeslam - Stamina Damage")
+			H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/chokeslam)
+		if("Stunner - Dazed Debuff")
+			H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/stunner)
+		if("Headbutt - Vulnerable Debuff")
+			H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/headbutt)
+	//opk add end
 	var/weapon_choice = input(H,"Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 	switch(weapon_choice)
 		if("Pugilist")

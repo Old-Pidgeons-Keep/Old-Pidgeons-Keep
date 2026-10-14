@@ -224,6 +224,8 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	COOLDOWN_DECLARE(bark_previewing)
 	var/mute_barks = FALSE
 
+	var/datum/tat_build/tat_build //OPK + CC + TA edit
+
 	//OV edit
 	var/badge_gng = "No"
 	var/badge_vore = "Unset"
@@ -238,6 +240,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	parent = C
 	migrant = new /datum/migrant_pref(src)
 	familiar_prefs = new /datum/familiar_prefs(src)
+	tat_build = new(src) //OPK + CC + TA edit
 
 	//OV edit
 	if(!sizecat)

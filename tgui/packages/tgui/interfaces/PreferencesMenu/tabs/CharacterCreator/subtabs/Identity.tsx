@@ -312,11 +312,16 @@ export const SubtabIdentityCardGameplay = () => {
             TRI)
           </Button>
         </Stack.Item>
+        <Stack.Item>
+        <Button fluid icon ="dice-d20" mt={1} onClick={() => act('TATBuild')}>
+          Pliant Soul Build
+        </Button>
+        </Stack.Item>
       </Stack>
     </Section>
   );
 };
-
+//OPK Edit - Tat build - Above 9 Lines.
 const SubtabIdentityCardGameplayCardCulinary = () => {
   const [constantData] = useConstantPrefs();
   const { data } = useBackendStrict<IdentityData>();

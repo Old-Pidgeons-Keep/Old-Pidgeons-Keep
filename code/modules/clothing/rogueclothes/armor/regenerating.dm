@@ -199,3 +199,4 @@
 	armor = ARMOR_PADDED
 	max_integrity = ARMOR_INT_CHEST_LIGHT_ELITE
 	repair_time = 20 SECONDS
+
