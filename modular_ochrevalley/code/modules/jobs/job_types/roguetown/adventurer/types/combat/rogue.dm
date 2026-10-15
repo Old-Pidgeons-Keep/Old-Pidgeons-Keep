@@ -1,5 +1,5 @@
 // OV File
-
+/* opk edit, more gun refactor - moved to modular.
 /datum/outfit/job/roguetown/adventurer/buccaneer/pre_equip(mob/living/carbon/human/H)
     ..()
     to_chat(H, span_warning("You are a daring rogue of the seas! Buccaneers wield deadly firearms and ruthless cunning - fighting dirty to outgun foes with swagger."))
@@ -24,7 +24,7 @@
         /obj/item/flashlight/flare/torch/lantern = 1,
         /obj/item/recipe_book/survival = 1
         )
-
+*/
 /datum/advclass/rogue/tinkerer //
 	name = "Itinerant Tinkerer"
 	tutorial = "In another life, your intellect, connections, and aptitude for blending well-worked bronze with Arcyne mysteries would have made for a fine guildsman. Whilst unnaccustomed to combat, your cleverness and inventions offer you a novel edge."
@@ -81,11 +81,11 @@
 		switch(gadget_choice)
 			if("Pistol")
 				beltl = /obj/item/quiver/bulletpouch/iron
-				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/arquebus/pistol
+				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/blackpowder/small/arquebus_pistol
 				l_hand = /obj/item/powderflask
 			if("Rifle")
 				beltl = /obj/item/quiver/bulletpouch/iron
-				backr = /obj/item/gun/ballistic/revolver/grenadelauncher/arquebus
+				backr = /obj/item/gun/ballistic/revolver/grenadelauncher/blackpowder/arquebus
 				l_hand = /obj/item/powderflask
 			if("Crossbow")
 				backr = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow

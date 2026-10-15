@@ -133,6 +133,7 @@ GLOBAL_PROTECT(admin_verbs_admin)
 GLOBAL_LIST_INIT(admin_verbs_ban, list(
 	/client/proc/unban_panel,
 	/client/proc/ban_panel,
+	/client/proc/tat_role_locks_panel, //opk add
 	/client/proc/stickybanpanel,
 	/client/proc/check_pq,
 	/client/proc/adjust_pq,

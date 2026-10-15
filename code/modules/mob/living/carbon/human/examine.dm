@@ -744,6 +744,8 @@
 		on_examine_face(user)
 		var/used_name = name
 		var/used_title = get_role_title()
+		if(tat_pliant_title) // OPK + CC + TA edit
+			used_title = tat_pliant_title // OPK + CC + TA edit
 		if(HAS_TRAIT(src, TRAIT_RESIDENT) && used_title == "Licker" && licker_subclass)
 			used_title = licker_subclass.name
 		if(SSticker.rulermob != src)
@@ -785,14 +787,14 @@
 			displayed_headshot = src.headshot_link
 
 		if ((valid_headshot_link(src, displayed_headshot, TRUE)) && (user.client?.prefs.chatheadshot))
-			if(display_as_wanderer)
+			if(display_as_wanderer && !tat_pliant_title) // OPK + CC + TA edit
 				. += (span_info("ø ------------ ø\n[chat_headshot(displayed_headshot)]\nThis is <EM>[used_name]</EM>, the wandering [race_name]."))
 			else if(used_title)
 				. += (span_info("ø ------------ ø\n[chat_headshot(displayed_headshot)]\nThis is <EM>[used_name]</EM>, the [race_name] [used_title]."))
 			else
 				. += (span_info("ø ------------ ø\n[chat_headshot(displayed_headshot)]\nThis is the <EM>[used_name]</EM>, the [race_name]."))
 		else
-			if(display_as_wanderer)
+			if(display_as_wanderer && !tat_pliant_title) // OPK + CC + TA edit
 				. += (span_info("ø ------------ ø\nThis is <EM>[used_name]</EM>, the wandering [race_name]."))
 			else if(used_title)
 				. += (span_info("ø ------------ ø\nThis is <EM>[used_name]</EM>, the [race_name] [used_title]."))

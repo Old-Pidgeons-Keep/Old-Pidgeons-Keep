@@ -7,7 +7,7 @@
 //	where you would want the updater procs below to run
 
 //	This also works with decimals.
-#define SAVEFILE_VERSION_MAX	36
+#define SAVEFILE_VERSION_MAX	37
 
 /*
 SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Carn
@@ -95,6 +95,10 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 			gear_list[LI.name] = meta
 	if(current_version < 36) // Strip the old per-item favorite/hated food & drink data now that preferences are category flags
 		S.dir.Remove("culinary_preferences")
+	if(current_version < 37) // add tat build to save file
+		if(!tat_build)
+			var/list/tat_build = list()
+			tat_build = new tat_build
 
 /datum/preferences/proc/load_path(ckey,filename="preferences.sav")
 	if(!ckey)
@@ -180,7 +184,11 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	//OV Edit End
 	// Custom hotkeys
 	S["key_bindings"]		>> key_bindings
+	//OPK edit
+	S["tat_build"] >> tat_build
 
+
+	//OPK + CC + TA edit end
 	//try to fix any outdated data if necessary
 	if(needs_update >= 0)
 		update_preferences(needs_update, S)		//needs_update = savefile_version if we need an update (positive integer)
@@ -247,6 +255,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	menuoptions			= SANITIZE_LIST(menuoptions)
 	be_special			= SANITIZE_LIST(be_special)
 	key_bindings 		= SANITIZE_LIST(key_bindings)
+	tat_build           = SANITIZE_LIST(tat_build) //OPK + CC + TA edit
 
 	// etc
 	asaycolor			= sanitize_ooccolor(sanitize_hexcolor(asaycolor, 6, TRUE, initial(asaycolor)))
@@ -425,6 +434,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	//OV Edit: Any persistent OV Prefs
 	WRITE_FILE(S["block_mindlink"], block_mindlink)
 	//OV Edit Start
+	WRITE_FILE(S["tat_build"], tat_build.export_to_list()) //OPK + CC + TA edit
 	return TRUE
 
 
