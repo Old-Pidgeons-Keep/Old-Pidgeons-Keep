@@ -15,7 +15,7 @@ $include discord.txt
 # There are various options which are hard-locked for security reasons.
 
 ## Server name: This appears at the top of the screen in-game and in the BYOND hub. Uncomment and replace 'tgstation' with the name of your choice.
-SERVERNAME Ochre Valley
+SERVERNAME the Old Pidgeon's Keep
 
 ## Server tagline: This will appear right below the server's title.
 # SERVERTAGLINE A generic TG-based server
@@ -24,7 +24,7 @@ SERVERNAME Ochre Valley
 # SERVERSQLNAME tgstation
 
 ## Station name: The name of the station as it is referred to in-game. If commented out, the game will generate a random name instead.
-STATIONNAME Ochre Valley
+STATIONNAME Old Pidgeon's Keep
 
 ## Put on byond hub: Uncomment this to put your server on the byond hub.
 #HUB
@@ -269,10 +269,10 @@ USEBLACKLIST
 WIKIURL https://ochrevalley.miraheze.org
 
 ## Rules address
-RULESURL https://ochrevalley.miraheze.org/wiki/Rules
+# RULESURL https://ochrevalley.miraheze.org/wiki/Rules
 
 ## Github address
-GITHUBURL https://github.com/Ochre-Valley/Ochre-Valley
+GITHUBURL https://github.com/Old-Pidgeons-Keep/Old-Pidgeons-Keep/
 
 ## Round specific stats address
 ## Link to round specific parsed logs; IE statbus. It is appended with the RoundID automatically by ticker/Reboot()
