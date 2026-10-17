@@ -1509,7 +1509,7 @@
 			return FALSE
 		if(H.get_item_by_slot(slot_id))
 			continue
-		if(H.equip_to_slot(I, slot_id, FALSE, TRUE, TRUE, TRUE))
+		if(H.equip_to_slot_if_possible(I, slot_id, FALSE, TRUE, TRUE, TRUE))
 			return TRUE
 	try_put_into_any_storage_or_drop(I, H, path)
 	return FALSE
