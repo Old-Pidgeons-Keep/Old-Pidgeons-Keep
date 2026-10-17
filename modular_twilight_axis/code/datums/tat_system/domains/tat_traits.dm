@@ -118,12 +118,6 @@
 		return role_titles[trait_id]
 	return null
 
-/datum/tat_traits/proc/has_jobrole_account()
-	for(var/trait_id in TAT_JOBROLE_ACCOUNT_TRAITS)
-		if(has_trait(trait_id))
-			return TRUE
-	return FALSE
-
 /datum/tat_traits/proc/has_jobrole()
 	for(var/trait_id in TAT_JOB_ROLE_TRAITS)
 		if(has_trait(trait_id))
@@ -997,8 +991,6 @@
 				ADD_TRAIT(H, trait_id, TAT_TRAIT_SOURCE)
 	if(has_trait(TAT_TRAIT_RESIDENT))
 		apply_resident_package(H)
-	else if(has_jobrole_account() && !(H in SStreasury.bank_accounts))
-		SStreasury.create_bank_account(H, 0)
 	if(has_trait(TAT_TRAIT_SOILSON))
 		ADD_TRAIT(H, TRAIT_NOSTINK, TAT_TRAIT_SOURCE)
 	if(has_trait(TAT_TRAIT_INN_HIRE))
