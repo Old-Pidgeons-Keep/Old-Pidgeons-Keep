@@ -184,26 +184,48 @@ export class Changelog extends Component {
 
     const header = (
       <Section>
-        <h1 style={{ color: 'red' }}>
-          <b>Welcome To Ochre Valley!!!!</b>
+        <h1 style={{ color: 'cyan' }}>
+          <b>Welcome to Old Pidgeon's Keep!</b>
         </h1>
-        <p style={{ color: 'red' }}>
-          This is a server is 18+ and made by people who are into vore, for
-          people who are into vore. If you do not know what that is, or it
-          bothers you, this is not the server for you. Harassment or kinkshaming
-          in any regard will not be tolerated, review our rules before playing,
-          and approach the game with a casual attitude; many are here to have
-          fun and ERP. PvP is entirely OPT-IN.
+        <p style={{ color: 'cyan' }}>
+          Thanks for spending time with us.  Remember to read our rules and
+          guidelines in the discord before you play.
+        </p>
+        <p style={{ color: 'cyan' }}>
+        We want to create a comfortable community environment where we all
+        can just relax with the game.  Please respect people's preference
+        tags in general, whether it's PVP or lewd shit.  That doesn't mean put
+        it ALL away when someone doesn't jive with you, it just means share
+        the space.  Contact us through the discord or Ahelps when you see
+        something, and don't start drama in here.
+        I'll try my best, too.
+        </p><p style={{ color: 'cyan' }}>
+        While I'm putting this together, I really want to make sure we all
+        stay personable with one another and maintain mutual respect.
+        This includes staff.  It sounds silly to say, but we really are
+        just here to help, and we wanna put the hat on as little as humanly
+        possible.  Please help us do that.  (PLEASE.)  Do your part too!
+        Be friendly and try to create interesting stories with the new people
+        you meet!  It's such a neat system and it doesn't do well being
+        lorded over and hoarded.  Let's make this place grow and keep it
+        fun for everyone involved.
+        </p><p style={{ color: 'cyan' }}>
+        Always keep in mind that this server was made by an absolute freak,
+        for absolute freaks.  We don't explicitly cater to a specific fetish,
+        but having a good time with (probably strange as HELL) ERP is pretty
+        central to the experience we wish to create.  Try not to harass folk
+        for doing weird shit. After all, if you're here, you're probably
+        weird too.  Love you, kisses.  -Syri
         </p>
         <p>
           {'Our GitHub can be found '}
-          <a href="https://github.com/Ochre-Valley/Ochre-Valley">here</a>
+          <a href="https://github.com/Old-Pidgeons-Keep/Old-Pidgeons-Keep/">here</a>
           {', recent GitHub contributors can be found '}
-          <a href="https://github.com/Ochre-Valley/Ochre-Valley/pulse">here</a>.
+          <a href="https://github.com/Old-Pidgeons-Keep/Old-Pidgeons-Keep/pulse">here</a>.
         </p>
         <p>
           {'Check for any new announcements on the discord '}
-          <a href="https://discord.com/channels/1473048818802229523/1473049362719440896">
+          <a href="">
             here
           </a>
           .
