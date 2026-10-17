@@ -125,7 +125,7 @@
 
 /datum/advclass/tat_class/trader
 	name = "Pliant Trader"
-	tutorial = "A custom-built traveler, supplier, artisan, or free tradesoul. This path is for TAT builds without resident, wanted, or outlander status."
+	tutorial = "A custom-built traveler, supplier, artisan, or free tradesoul. This path is for TAT builds without resident or wanted status."
 
 	category_tags = list(CTAG_TRADER)
 	class_select_category = CLASS_CAT_TRADER
@@ -133,7 +133,7 @@
 
 /datum/advclass/tat_class/adventurer
 	name = "Pliant Adventurer"
-	tutorial = "A custom-built wanderer-outlander, or dangerous free soul. This path is for TAT builds with Outlander."
+	tutorial = "A custom-built wanderer or dangerous free soul. This path is for TAT builds with the Adventurer job role."
 
 	class_select_category = CLASS_CAT_NOMAD
 	category_tags = list(CTAG_ADVENTURER, CTAG_COURTAGENT)
@@ -149,6 +149,86 @@
 
 /datum/outfit/job/roguetown/tat_class
 	name = "Pliant Soul"
+
+/datum/advclass/tat_class/guilder
+	name = "Pliant Guild Smith"
+	category_tags = list(CTAG_GUILDSMEN)
+	class_select_category = CLASS_CAT_TRADER
+	required_tat_bucket = TAT_ROLE_BUCKET_GUILDER
+
+/datum/advclass/tat_class/soilson
+	name = "Pliant Soilson"
+	category_tags = list(CTAG_SOILBRIDE)
+	class_select_category = CLASS_CAT_TRADER
+	required_tat_bucket = TAT_ROLE_BUCKET_SOILSON
+
+/datum/advclass/tat_class/inn_hire
+	name = "Pliant Tapster"
+	category_tags = list(CTAG_TAPSTER)
+	class_select_category = CLASS_CAT_TRADER
+	required_tat_bucket = TAT_ROLE_BUCKET_INN_HIRE
+
+/datum/advclass/tat_class/shop_hire
+	name = "Pliant Shophand"
+	category_tags = list(CTAG_SHOPHAND)
+	class_select_category = CLASS_CAT_TRADER
+	required_tat_bucket = TAT_ROLE_BUCKET_SHOP_HIRE
+
+/datum/advclass/tat_class/keep_servantry
+	name = "Pliant Servant"
+	category_tags = list(CTAG_SERVANT)
+	class_select_category = CLASS_CAT_TRADER
+	required_tat_bucket = TAT_ROLE_BUCKET_KEEP_SERVANTRY
+
+/datum/advclass/tat_class/town_guard
+	name = "Pliant Man at Arms"
+	category_tags = list(CTAG_MENATARMS)
+	class_select_category = CLASS_CAT_WARRIOR
+	required_tat_bucket = TAT_ROLE_BUCKET_TOWN_GUARD
+
+/datum/advclass/tat_class/knight
+	name = "Pliant Knight"
+	category_tags = list(CTAG_ROYALGUARD)
+	class_select_category = CLASS_CAT_WARRIOR
+	required_tat_bucket = TAT_ROLE_BUCKET_KNIGHT
+
+/datum/advclass/tat_class/squire
+	name = "Pliant Squire"
+	category_tags = list(CTAG_SQUIRE)
+	class_select_category = CLASS_CAT_WARRIOR
+	required_tat_bucket = TAT_ROLE_BUCKET_SQUIRE
+
+/datum/advclass/tat_class/churchling
+	name = "Pliant Acolyte"
+	category_tags = list(CTAG_ACOLYTE)
+	class_select_category = CLASS_CAT_CLERIC
+	required_tat_bucket = TAT_ROLE_BUCKET_CHURCHLING
+
+/datum/advclass/tat_class/templar
+	name = "Pliant Templar"
+	category_tags = list(CTAG_TEMPLAR)
+	class_select_category = CLASS_CAT_CLERIC
+	required_tat_bucket = TAT_ROLE_BUCKET_TEMPLAR
+
+/datum/advclass/tat_class/academy_staff
+	name = "Pliant Magicians Associate"
+	category_tags = list(CTAG_WAPPRENTICE)
+	class_select_category = CLASS_CAT_MAGE
+	required_tat_bucket = TAT_ROLE_BUCKET_ACADEMY_STAFF
+
+/datum/advclass/tat_class/mercenary
+	name = "Pliant Mercenary"
+	category_tags = list(CTAG_MERCENARY)
+	class_select_category = CLASS_CAT_WARRIOR
+	required_tat_bucket = TAT_ROLE_BUCKET_MERCENARY
+
+
+/datum/advclass/tat_class/wild_soul
+	name = "Pliant Wild Soul"
+	category_tags = list(CTAG_WILDSOUL)
+	class_select_category = CLASS_CAT_RANGER
+	required_tat_bucket = TAT_ROLE_BUCKET_WILD_SOUL
+
 
 /datum/outfit/job/roguetown/tat_class/basic/pre_equip(mob/living/carbon/human/H)
 	..()

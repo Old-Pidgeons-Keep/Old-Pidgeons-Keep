@@ -358,12 +358,40 @@
 	var/list/result = list()
 	if(!owner_build?.traits)
 		return result
+	if(owner_build.has_trait(TAT_TRAIT_SOLVED_RIDDLE))
+		add_grant_amount(result, /obj/item/riddleofsteel/tat_grant)
 	if(owner_build.has_trait(TRAIT_RITUALIST))
 		add_grant_amount(result, /obj/item/ritechalk)
 	if(owner_build.has_trait(TAT_TRAIT_MAGE_INITIATE))
 		add_grant_amount(result, /obj/item/rogueweapon/spellbook)
 		add_grant_amount(result, /obj/item/chalk)
+	if(owner_build.has_trait(TAT_TRAIT_GUILDER))
+		add_grant_amount(result, /obj/item/roguekey/crafterguild)
+	if(owner_build.has_trait(TAT_TRAIT_SOILSON))
+		add_grant_amount(result, /obj/item/roguekey/farm)
+	if(owner_build.has_trait(TAT_TRAIT_INN_HIRE))
+		add_grant_amount(result, /obj/item/roguekey/tavern)
+	if(owner_build.has_trait(TAT_TRAIT_SHOP_HIRE))
+		add_grant_amount(result, /obj/item/roguekey/shop)
+	if(owner_build.has_trait(TAT_TRAIT_KEEP_SERVANTRY))
+		add_grant_amount(result, /obj/item/roguekey/manor/servant)
+	if(owner_build.has_trait(TAT_TRAIT_TOWN_GUARD))
+		add_grant_amount(result, /obj/item/roguekey/garrison)
+	if(owner_build.has_trait(TAT_TRAIT_KNIGHT))
+		add_grant_amount(result, /obj/item/roguekey/manor/knight)
+	if(owner_build.has_trait(TAT_TRAIT_SQUIRE))
+		add_grant_amount(result, /obj/item/rogueweapon/hammer)
+		add_grant_amount(result, /obj/item/needle)
+	if(owner_build.has_trait(TAT_TRAIT_CHURCHLING) || owner_build.has_trait(TAT_TRAIT_TEMPLAR))
+		add_grant_amount(result, /obj/item/roguekey/church)
+	if(owner_build.has_trait(TAT_TRAIT_ACADEMY_STAFF))
+		add_grant_amount(result, /obj/item/roguekey/university)
+	if(owner_build.has_trait(TAT_TRAIT_MERCENARY))
+		add_grant_amount(result, /obj/item/roguekey/mercenary)
 	return result
+
+/obj/item/riddleofsteel/tat_grant
+	sellprice = 0
 
 /datum/tat_items/proc/sync_trait_granted_items()
 	var/list/wanted = build_trait_granted_item_amounts()
@@ -1481,7 +1509,7 @@
 			return FALSE
 		if(H.get_item_by_slot(slot_id))
 			continue
-		if(H.equip_to_slot_if_possible(I, slot_id, FALSE, TRUE, TRUE, TRUE))
+		if(H.equip_to_slot(I, slot_id, FALSE, TRUE, TRUE, TRUE))
 			return TRUE
 	try_put_into_any_storage_or_drop(I, H, path)
 	return FALSE

@@ -164,12 +164,12 @@
 	return total
 
 /datum/tat_skills/proc/get_virtue_bonus_value(skill_type)
-	var/list/virtues = owner_build?.get_active_virtues()
-	if(!length(virtues))
+	//var/list/virtues = owner_build?.get_active_virtues() //OPK edit, the value was too good
+	//if(!length(virtues))
 		return 0
-	return add_virtue_rule_value(skill_type, GLOB.tat_virtue_skill_bonus_rules, virtues) + add_virtue_choice_rule_value(skill_type, GLOB.tat_virtue_choice_skill_bonus_rules, virtues)
+	//return add_virtue_rule_value(skill_type, GLOB.tat_virtue_skill_bonus_rules, virtues) + add_virtue_choice_rule_value(skill_type, GLOB.tat_virtue_choice_skill_bonus_rules, virtues)
 
-/datum/tat_skills/proc/get_virtue_skill_cap_bonus(skill_type)
+/datum/tat_skills/proc/get_virtue_skill_cap_bonus(skill_type) //we still want virtues to raise cielings though.
 	var/list/virtues = owner_build?.get_active_virtues()
 	if(!length(virtues))
 		return 0
@@ -359,8 +359,25 @@
 		cap = TAT_SKILL_COMBAT_CAP_TRAIT_MASTER
 	else if(owner_build?.has_trait(TAT_TRAIT_WARRIOR_EXPERT))
 		cap = TAT_SKILL_COMBAT_CAP_TRAIT_EXPERT
-
+	cap = max(cap, get_jobrole_combat_skill_cap(skill_type))
 	return clamp(cap, 0, TAT_SKILL_NONCOMBAT_CAP_ABSOLUTE)
+
+/datum/tat_skills/proc/get_jobrole_combat_skill_cap(skill_type) //OPK add, special jobrole sp
+	var/cap = 0
+	if(ispath(skill_type, /datum/skill/combat/wrestling) && owner_build?.has_trait(TAT_TRAIT_CHURCHLING))
+		cap = SKILL_LEVEL_MASTER
+	else if(owner_build?.has_trait(TAT_TRAIT_SOILSON) || owner_build?.has_trait(TAT_TRAIT_SQUIRE) || owner_build?.has_trait(TAT_TRAIT_ADVENTURER) || owner_build?.has_trait(TAT_TRAIT_MERCENARY) || owner_build?.has_trait(TAT_TRAIT_TEMPLAR))
+		cap = SKILL_LEVEL_JOURNEYMAN
+	else if(owner_build?.has_trait(TAT_TRAIT_ACADEMY_STAFF) && ispath(skill_type, /datum/skill/combat/staves))
+		cap = max(cap, SKILL_LEVEL_EXPERT)
+	else if(owner_build?.has_trait(TAT_TRAIT_TOWN_GUARD) || owner_build?.has_trait(TAT_TRAIT_KNIGHT))
+		cap = max(cap, SKILL_LEVEL_EXPERT)
+		if(ispath(skill_type, /datum/skill/combat/bows) || ispath(skill_type, /datum/skill/combat/crossbows) || ispath(skill_type, /datum/skill/combat/slings) || ispath(skill_type, /datum/skill/combat/firearms))
+			cap = max(cap, TAT_SKILL_COMBAT_CAP_TRAIT_MASTER)
+	else if(owner_build?.has_trait(TAT_TRAIT_WILD_SOUL))
+		cap = max(cap, TAT_SKILL_COMBAT_CAP_TRAIT_EXPERT)
+	return cap
+//OPK add, special jobrole skillcaps
 
 /datum/tat_skills/proc/get_combat_skill_cap(skill_type)
 	if(!ispath(skill_type, /datum/skill/combat))
@@ -395,6 +412,7 @@
 	if(cap_bonus > 0)
 		cap = max(cap, base_cap + cap_bonus)
 
+	cap = max(cap, get_jobrole_combat_skill_cap(skill_type))
 	return clamp(cap, 0, TAT_SKILL_NONCOMBAT_CAP_ABSOLUTE)
 
 /datum/tat_skills/proc/get_magic_skill_cap(skill_type)
@@ -402,17 +420,31 @@
 
 	if(skill_type == /datum/skill/magic/arcane)
 		if(owner_build?.has_trait(TRAIT_ARCYNE))
-			cap = 6
+			cap = TAT_SKILL_COMBAT_CAP_DEFAULT
+		if(owner_build?.has_trait(TAT_TRAIT_ACADEMY_STAFF))
+			cap = max(cap, SKILL_LEVEL_LEGENDARY)
+		else if(owner_build?.has_trait(TAT_TRAIT_SQUIRE) || owner_build?.has_trait(TAT_TRAIT_ADVENTURER) || owner_build?.has_trait(TAT_TRAIT_MERCENARY) || owner_build?.has_trait(TAT_TRAIT_WILD_SOUL))
+			cap = max(cap, TAT_SKILL_COMBAT_CAP_TRAIT_EXPERT)
 
 	else if(skill_type == /datum/skill/magic/holy)
-		if(owner_build?.has_trait(TAT_TRAIT_DIVINE_BOON_3))
-			cap = 6
+		if(owner_build?.has_trait(TAT_TRAIT_DIVINE_BOON_4))
+			cap = SKILL_LEVEL_LEGENDARY
+		else if(owner_build?.has_trait(TAT_TRAIT_DIVINE_BOON_3))
+			cap = SKILL_LEVEL_LEGENDARY
 		else if(owner_build?.has_trait(TAT_TRAIT_DIVINE_BOON_2))
-			cap = 5
+			cap = SKILL_LEVEL_MASTER
 		else if(owner_build?.has_trait(TAT_TRAIT_DIVINE_BOON_1))
-			cap = 3
+			cap = TAT_SKILL_COMBAT_CAP_DEFAULT
 		else if(owner_build?.has_trait(TAT_TRAIT_DIVINE_INITIATE))
-			cap = 1
+			cap = SKILL_LEVEL_NOVICE
+		else if(owner_build?.has_trait(TAT_TRAIT_TEMPLAR))
+			cap = max(cap, SKILL_LEVEL_JOURNEYMAN)
+		else if(owner_build?.has_trait(TAT_TRAIT_CHURCHLING) || owner_build?.has_trait(TAT_TRAIT_WILD_SOUL))
+			cap = max(cap, SKILL_LEVEL_LEGENDARY)
+		else if(owner_build?.has_trait(TAT_TRAIT_SQUIRE) || owner_build?.has_trait(TAT_TRAIT_ADVENTURER))
+			cap = max(cap, SKILL_LEVEL_JOURNEYMAN)
+		else if(owner_build?.has_trait(TAT_TRAIT_MERCENARY))
+			cap = max(cap, SKILL_LEVEL_EXPERT)
 
 	var/cap_bonus = get_trait_cap_bonus(skill_type) + get_virtue_skill_cap_bonus(skill_type)
 	if(cap_bonus > 0)
