@@ -441,7 +441,6 @@
 
 	if(islist(trait_data))
 		var/list/all_traits = GLOB.tat_available_traits
-		var/has_outlander = (TRAIT_OUTLANDER in trait_data) || !!trait_data[TRAIT_OUTLANDER]
 
 		for(var/key in trait_data)
 			var/trait_id = key
@@ -459,9 +458,6 @@
 				continue
 
 			var/cost = isnum(entry["cost"]) ? entry["cost"] : 0
-
-			if(trait_id == TAT_TRAIT_BONUS_STAT_POOL && has_outlander)
-				cost -= TAT_TRAIT_DISCOUNT
 
 			var/total_cost = cost * count
 			if((trait_id in GLOB.tat_capped_negative_traits) && total_cost < 0)
@@ -820,14 +816,28 @@
 	last_json_notice = "Build imported."
 	return TRUE
 
-/datum/tat_build/proc/get_role_bucket()
-	if(traits?.has_trait(TAT_TRAIT_RESIDENT))
-		return TAT_ROLE_BUCKET_TOWNER
-
-	if(traits?.has_trait(TRAIT_OUTLANDER))
-		return TAT_ROLE_BUCKET_ADVENTURER
-
-	if(traits?.has_trait(TAT_TRAIT_WANTED))
-		return TAT_ROLE_BUCKET_WRETCH
+/datum/tat_build/proc/get_role_bucket() //OPK EDIT, NEW JOBROLES
+	var/list/job_role_buckets = list(
+		TAT_TRAIT_RESIDENT = TAT_ROLE_BUCKET_TOWNER,
+		TAT_TRAIT_GUILDER = TAT_ROLE_BUCKET_GUILDER,
+		TAT_TRAIT_SOILSON = TAT_ROLE_BUCKET_SOILSON,
+		TAT_TRAIT_INN_HIRE = TAT_ROLE_BUCKET_INN_HIRE,
+		TAT_TRAIT_SHOP_HIRE = TAT_ROLE_BUCKET_SHOP_HIRE,
+		TAT_TRAIT_KEEP_SERVANTRY = TAT_ROLE_BUCKET_KEEP_SERVANTRY,
+		TAT_TRAIT_TOWN_GUARD = TAT_ROLE_BUCKET_TOWN_GUARD,
+		TAT_TRAIT_KNIGHT = TAT_ROLE_BUCKET_KNIGHT,
+		TAT_TRAIT_SQUIRE = TAT_ROLE_BUCKET_SQUIRE,
+		TAT_TRAIT_CHURCHLING = TAT_ROLE_BUCKET_CHURCHLING,
+		TAT_TRAIT_TEMPLAR = TAT_ROLE_BUCKET_TEMPLAR,
+		TAT_TRAIT_ACADEMY_STAFF = TAT_ROLE_BUCKET_ACADEMY_STAFF,
+		TAT_TRAIT_ADVENTURER = TAT_ROLE_BUCKET_ADVENTURER,
+		TAT_TRAIT_MERCENARY = TAT_ROLE_BUCKET_MERCENARY,
+		TAT_TRAIT_WILD_SOUL = TAT_ROLE_BUCKET_WILD_SOUL,
+		TAT_TRAIT_WANTED = TAT_ROLE_BUCKET_WRETCH
+	)
+	for(var/job_role_trait in job_role_buckets)
+		if(traits?.has_trait(job_role_trait))
+			return job_role_buckets[job_role_trait]
+//OPK EDIT END
 
 	return TAT_ROLE_BUCKET_TRADER

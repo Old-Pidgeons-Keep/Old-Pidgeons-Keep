@@ -3900,7 +3900,21 @@
 #include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\tat_build\tat_class.dm"
 #include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\adventurer\adventurer.dm"
 #include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\adventurer\wretch.dm"
-//ta files end
+//OPK files for modified TAT system
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\sidefolk\mercenary"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\retinue\squire"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\retinue\knight"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\peasants\tapster"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\peasants\soilson"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\peasants\shophand"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\peasants\servant"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\garrison\manatarms"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\church\templar"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\church\acolyte"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\burghers\mage_apprentice"
+#include "modular_twilight_axis\code\modules\jobs\job_types\roguetown\burghers\guildsman"
+#include "modular_twilight_axis\code\modules\classes\wildsoul"
+//end class files
 #include "modular_causticcove\code\datums\loadout\loadout_accessories.dm"
 #include "modular_causticcove\code\datums\loadout\loadout_cloaks.dm"
 #include "modular_causticcove\code\datums\loadout\loadout_hats.dm"
