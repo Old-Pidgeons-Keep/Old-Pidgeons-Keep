@@ -95,8 +95,52 @@
 		return "[trait_id]"
 	return "[entry["name"]]"
 
+/datum/tat_traits/proc/get_jobrole_title(mob/living/carbon/human/owner)
+	var/list/role_titles = list(
+		TAT_TRAIT_GUILDER = "Guild Smith",
+		TAT_TRAIT_SOILSON = "Soilson",
+		TAT_TRAIT_INN_HIRE = "Tapster",
+		TAT_TRAIT_SHOP_HIRE = "Shophand",
+		TAT_TRAIT_KEEP_SERVANTRY = "Servant",
+		TAT_TRAIT_TOWN_GUARD = "Man at Arms",
+		TAT_TRAIT_KNIGHT = "Knight",
+		TAT_TRAIT_SQUIRE = "Squire",
+		TAT_TRAIT_CHURCHLING = "Acolyte",
+		TAT_TRAIT_TEMPLAR = "Templar",
+		TAT_TRAIT_ACADEMY_STAFF = "Magicians Associate",
+		TAT_TRAIT_ADVENTURER = "Adventurer",
+		TAT_TRAIT_MERCENARY = "Mercenary",
+		TAT_TRAIT_WILD_SOUL = "Wild Soul",
+	)
+	for(var/trait_id in TAT_JOB_ROLE_TRAITS)
+		if(!has_trait(trait_id) || trait_id == TAT_TRAIT_RESIDENT)
+			continue
+		return role_titles[trait_id]
+	return null
+
+/datum/tat_traits/proc/has_jobrole_account()
+	for(var/trait_id in TAT_JOBROLE_ACCOUNT_TRAITS)
+		if(has_trait(trait_id))
+			return TRUE
+	return FALSE
+
+/datum/tat_traits/proc/has_jobrole()
+	for(var/trait_id in TAT_JOB_ROLE_TRAITS)
+		if(has_trait(trait_id))
+			return TRUE
+	return FALSE
+
 /datum/tat_traits/proc/get_total_maximum()
 	return base_points
+
+/datum/tat_traits/proc/get_defensive_trait_count()
+	var/count = 0
+	var/list/effective_traits = get_effective_trait_counts()
+	for(var/trait_id in effective_traits)
+		var/list/entry = get_entry(trait_id)
+		if(islist(entry) && entry["category"] == TAT_CATEGORY_DEFENSE)
+			count += round(effective_traits[trait_id] || 0)
+	return count
 
 /datum/tat_traits/proc/get_base_cost(trait_id)
 	var/list/entry = get_entry(trait_id)
@@ -158,7 +202,6 @@
 	modifier -= get_armor_supplier_cross_discount(trait_id)
 	modifier -= get_material_supplier_cross_discount(trait_id)
 	modifier -= get_armor_training_supplier_discount(trait_id)
-	modifier -= get_outlander_natural_potential_discount(trait_id)
 	return modifier
 
 /datum/tat_traits/proc/get_display_cost(trait_id)
@@ -180,17 +223,16 @@
 /datum/tat_traits/proc/can_select_trait(trait_id)
 	if(!check_trait(trait_id))
 		return FALSE
-	//if(trait_id == TAT_TRAIT_FREEPTS && !owner_build?.can_select_contractor_trait())
-		//return FALSE
-	var/pq_minimum = get_pq_lock_minimum(trait_id)
-	if(pq_minimum > 0 && (owner_build?.get_owner_playerquality() || 0) < pq_minimum)
-		return FALSE
-	// Virtue-granted flaws are already real character traits. Do not allow buying
-	// the same negative TAT trait again just to farm trait points. Positive
-	// traits stay buyable: external traits must not satisfy requirement chains.
-	if(has_external_trait(trait_id) && get_base_cost(trait_id) < 0)
+	if(is_repeatable_trait(trait_id) && get_trait_count(trait_id) >= get_trait_maximum(trait_id))
 		return FALSE
 	return TRUE
+
+/datum/tat_traits/proc/get_trait_add_error(trait_id)
+	if(!check_trait(trait_id))
+		return "Unknown TAT trait."
+	if(is_repeatable_trait(trait_id) && get_trait_count(trait_id) >= get_trait_maximum(trait_id))
+		return "\"[get_trait_display_name(trait_id)]\" has reached its maximum selection count."
+	return "Could not add \"[get_trait_display_name(trait_id)]\"."
 
 /datum/tat_traits/proc/add_trait(trait_id)
 	if(!can_select_trait(trait_id))
@@ -244,27 +286,12 @@
 	return total
 
 /datum/tat_traits/proc/get_bonus_skill_value(skill_type)
-	var/total = 0
-	var/list/rules = GLOB.tat_trait_skill_bonus_rules
-
-	for(var/trait_id in selected)
-		var/list/skill_map = rules[trait_id]
-		if(islist(skill_map))
-			total += round(skill_map[skill_type] || 0)
-
-	if(has_trait(TRAIT_ARCYNE) && skill_type == /datum/skill/magic/arcane && !has_defensive_trait_lockout())
-		total += 3
-
-	if(has_trait(TAT_TRAIT_MAGE_INITIATE) && skill_type == /datum/skill/magic/arcane)
-		total += 1
-
-	if(has_trait(TAT_TRAIT_SADDLEBORN) && skill_type == /datum/skill/misc/riding)
-		total += 1
-
-	if(has_trait(TAT_TRAIT_DIVINE_INITIATE) && skill_type == /datum/skill/magic/holy)
-		total += 1
-
-	return total
+	var/bonus
+	if(has_trait(TAT_TRAIT_SHIELD_TRAINING) && skill_type == /datum/skill/combat/shields)
+		bonus = SKILL_LEVEL_JOURNEYMAN
+	if(has_trait(TAT_TRAIT_SERVANTS_PRECISION) && skill_type == /datum/skill/combat/knives)
+		bonus = SKILL_LEVEL_APPRENTICE
+	return bonus
 
 /datum/tat_traits/proc/get_skill_cap_bonus_value(skill_type)
 	var/highest_cap = 0
@@ -283,7 +310,7 @@
 	if(highest_cap > 0)
 		return highest_cap
 
-	return has_rule ? TAT_SKILL_NONCOMBAT_CAP_UNTRAITED : 0
+	return has_rule && !ispath(skill_type, /datum/skill/combat) ? TAT_SKILL_NONCOMBAT_CAP_UNTRAITED : 0
 
 /datum/tat_traits/proc/get_required_trait_for_unlock(unlock_type, unlock_key)
 	var/list/rules = GLOB.tat_trait_item_unlock_rules
@@ -305,14 +332,6 @@
 	if(has_trait(TRAIT_SELF_SUSTENANCE) && (ispath(skill_type, /datum/skill/craft) || ispath(skill_type, /datum/skill/labor)))
 		return 1
 
-	var/list/rules = GLOB.tat_trait_skill_discount_rules
-	for(var/trait_id in selected)
-		var/list/discounted = rules[trait_id]
-		if(!islist(discounted) || !(skill_type in discounted))
-			continue
-		if(ispath(skill_type, /datum/skill/combat))
-			return (target_level <= 2) ? 1 : 0
-		return 1
 	return 0
 
 /datum/tat_traits/proc/is_capped_negative_credit_trait(trait_id)
@@ -351,12 +370,12 @@
 	if(length(GLOB.tat_trait_conflict_map))
 		return GLOB.tat_trait_conflict_map
 	GLOB.tat_trait_conflict_map = list(
-		TAT_TRAIT_RESIDENT = list(TRAIT_OUTLANDER, TAT_TRAIT_WANTED, TAT_TRAIT_BONUS_STAT_POOL, TAT_TRAIT_MASTER_OF_WANDERING, TAT_TRAIT_HERETIC, TRAIT_STRONGBITE, TAT_TRAIT_TRADER_LICENSE, TAT_TRAIT_WARRIOR_EXPERT),
-		TAT_TRAIT_TRADER_LICENSE = list(TAT_TRAIT_RESIDENT, TAT_TRAIT_WANTED, TRAIT_OUTLANDER, TAT_TRAIT_HERETIC),
-		TRAIT_OUTLANDER = list(TAT_TRAIT_WANTED),
-		TAT_TRAIT_WANTED = list(TRAIT_OUTLANDER, TAT_TRAIT_RESIDENT, TRAIT_TECHNOPHOBE),
-		TAT_TRAIT_BONUS_STAT_POOL = list(TAT_TRAIT_WANTED),
+		TAT_TRAIT_RESIDENT = list(TAT_TRAIT_WANTED, TAT_TRAIT_MASTER_OF_WANDERING, TAT_TRAIT_HERETIC, TRAIT_STRONGBITE, TAT_TRAIT_TRADER_LICENSE, TAT_TRAIT_WARRIOR_EXPERT),
+		TAT_TRAIT_TRADER_LICENSE = list(TAT_TRAIT_RESIDENT, TAT_TRAIT_WANTED, TAT_TRAIT_HERETIC),
+		TAT_TRAIT_WANTED = list(TAT_TRAIT_RESIDENT, TRAIT_TECHNOPHOBE),
 		TRAIT_DODGEEXPERT = list(TRAIT_PARRYEXPERT, TAT_TRAIT_MAGE_MINOR_SLOT_2, TAT_TRAIT_MAGE_MAJOR_SLOT),
+		TRAIT_IGNOREDAMAGESLOWDOWN = list(TRAIT_MEDIUMARMOR, TRAIT_HEAVYARMOR, TAT_TRAIT_WARRIOR_EXPERT, TAT_TRAIT_WARRIOR_MASTER),
+		TRAIT_BLOOD_RESISTANCE = list(TRAIT_MEDIUMARMOR, TRAIT_HEAVYARMOR, TAT_TRAIT_WARRIOR_EXPERT, TAT_TRAIT_WARRIOR_MASTER),
 		TRAIT_HEAVYARMOR = list(TRAIT_CRITICAL_RESISTANCE, TAT_TRAIT_MAGE_INITIATE),
 		TRAIT_MEDIUMARMOR = list(TRAIT_CRITICAL_RESISTANCE, TAT_TRAIT_MAGE_INITIATE),
 		TAT_TRAIT_SPELLBLADE = list(TAT_TRAIT_DIVINE_BOON_2, TAT_TRAIT_MAGE_MAJOR_SLOT),
@@ -369,15 +388,14 @@
 		TAT_TRAIT_SAVAGE_RAGE = list(TAT_TRAIT_BERSERKER_RAGE),
 		TRAIT_EASYDISMEMBER = list(TRAIT_HARDDISMEMBER),
 		TRAIT_HARDDISMEMBER = list(TRAIT_EASYDISMEMBER),
-		TRAIT_FENCERDEXTERITY = list(TAT_TRAIT_SAVAGE_SKIN),
 		TRAIT_NUDE_SLEEPER = list(TRAIT_NUDIST, TAT_TRAIT_SAVAGE_SKIN, TRAIT_NOSLEEP),
 		TAT_TRAIT_SAVAGE_SKIN = list(TRAIT_NUDIST, TRAIT_SHIRTLESS),
 		TAT_TRAIT_LOOTRAT = list(TAT_TRAIT_WANTED),
-		TAT_TRAIT_LOOTRAT_2 = list(TAT_TRAIT_SPELLBLADE, TAT_TRAIT_MAGE_INITIATE, TAT_TRAIT_DIVINE_BOON_2, TAT_TRAIT_HERETIC, TAT_TRAIT_WARRIOR_EXPERT, TAT_TRAIT_BONUS_STAT_POOL, TRAIT_PARRYEXPERT, TRAIT_DODGEEXPERT, TRAIT_CRITICAL_RESISTANCE, TRAIT_MEDIUMARMOR, TRAIT_HEAVYARMOR, TRAIT_CIVILIZEDBARBARIAN),
+		TAT_TRAIT_LOOTRAT_2 = list(TAT_TRAIT_SPELLBLADE, TAT_TRAIT_MAGE_INITIATE, TAT_TRAIT_DIVINE_BOON_2, TAT_TRAIT_HERETIC, TAT_TRAIT_WARRIOR_EXPERT, TRAIT_PARRYEXPERT, TRAIT_DODGEEXPERT, TRAIT_CRITICAL_RESISTANCE, TRAIT_MEDIUMARMOR, TRAIT_HEAVYARMOR, TRAIT_CIVILIZEDBARBARIAN),
 		TRAIT_NOSLEEP = list(TRAIT_RITUALIST, TRAIT_REGROW_LIMBS),
 		//TRAIT_MANORHOLDERMEDIUM = list(TRAIT_MANORHOLDERSMALL),
 		//TRAIT_MANORHOLDERSMALL = list(TRAIT_MANORHOLDERMEDIUM),
-		TRAIT_NOPAINSTUN = list(TAT_TRAIT_MAGE_INITIATE),
+		TRAIT_NOPAINSTUN = list(TAT_TRAIT_MAGE_INITIATE, TRAIT_MEDIUMARMOR, TRAIT_HEAVYARMOR), //why.  Why wasn't this restricted to armor before?
 		TRAIT_HARDDISMEMBER = list(TRAIT_EASYDISMEMBER),
 		TRAIT_DEFILED_NOBLE = list(TRAIT_NOBLE),
 		TRAIT_SHIRTLESS = list(TRAIT_NUDIST),
@@ -391,14 +409,20 @@
 	if(length(GLOB.tat_trait_requirement_map))
 		return GLOB.tat_trait_requirement_map
 	GLOB.tat_trait_requirement_map = list(
-		TAT_TRAIT_WARRIOR_MASTER = list("all" = list(TAT_TRAIT_WARRIOR_EXPERT), "message" = "\"[get_trait_display_name(TAT_TRAIT_WARRIOR_MASTER)]\" requires \"[get_trait_display_name(TAT_TRAIT_WARRIOR_EXPERT)]\"."),
+		TAT_TRAIT_WARRIOR_MASTER = list("any" = list(TAT_TRAIT_WARRIOR_EXPERT, TAT_TRAIT_WILD_SOUL, TAT_TRAIT_WANTED), "message" = "\"[get_trait_display_name(TAT_TRAIT_WARRIOR_MASTER)]\" requires Expert Warrior, Wild Soul, or Wanted."),
 		TAT_TRAIT_BARDIC_INSPIRATION_T2 = list("all" = list(TAT_TRAIT_BARDIC_INSPIRATION_T1), "message" = "\"[get_trait_display_name(TAT_TRAIT_BARDIC_INSPIRATION_T2)]\" requires \"[get_trait_display_name(TAT_TRAIT_BARDIC_INSPIRATION_T1)]\"."),
-		TAT_TRAIT_DIVINE_BOON_1 = list("all" = list(TAT_TRAIT_DIVINE_INITIATE), "message" = "\"[get_trait_display_name(TAT_TRAIT_DIVINE_BOON_1)]\" requires \"[get_trait_display_name(TAT_TRAIT_DIVINE_INITIATE)]\"."),
-		TAT_TRAIT_DIVINE_BOON_2 = list("all" = list(TAT_TRAIT_DIVINE_INITIATE, TAT_TRAIT_DIVINE_BOON_1), "message" = "\"[get_trait_display_name(TAT_TRAIT_DIVINE_BOON_2)]\" requires previous divine progression."),
-		TAT_TRAIT_DIVINE_BOON_3 = list("all" = list(TAT_TRAIT_DIVINE_INITIATE, TAT_TRAIT_DIVINE_BOON_2), "message" = "\"[get_trait_display_name(TAT_TRAIT_DIVINE_BOON_3)]\" requires previous divine progression."),
-		TAT_TRAIT_MAGE_INITIATE = list("all" = list(TRAIT_ARCYNE), "message" = "\"[get_trait_display_name(TAT_TRAIT_MAGE_INITIATE)]\" requires \"[get_trait_display_name(TRAIT_ARCYNE)]\"."),
+		TAT_TRAIT_DIVINE_BOON_1 = list("any" = list(TAT_TRAIT_DIVINE_INITIATE, TAT_TRAIT_CHURCHLING, TAT_TRAIT_TEMPLAR), "message" = "\"[get_trait_display_name(TAT_TRAIT_DIVINE_BOON_1)]\" requires \"[get_trait_display_name(TAT_TRAIT_DIVINE_INITIATE)] \" churchling, or templar."),
+		TAT_TRAIT_DIVINE_BOON_2 = list("all" = list(TAT_TRAIT_DIVINE_INITIATE, TAT_TRAIT_DIVINE_BOON_1), "any" = list(TAT_TRAIT_SQUIRE, TAT_TRAIT_ADVENTURER, TAT_TRAIT_MERCENARY, TAT_TRAIT_TEMPLAR, TAT_TRAIT_CHURCHLING, TAT_TRAIT_WILD_SOUL, TAT_TRAIT_WANTED), "message" = "\"[get_trait_display_name(TAT_TRAIT_DIVINE_BOON_2)]\" requires previous divine progression and a qualifying job role or Wanted."),
+		TAT_TRAIT_DIVINE_BOON_3 = list("all" = list(TAT_TRAIT_DIVINE_INITIATE, TAT_TRAIT_DIVINE_BOON_2), "any" = list(TAT_TRAIT_MERCENARY, TAT_TRAIT_TEMPLAR, TAT_TRAIT_CHURCHLING, TAT_TRAIT_WILD_SOUL, TAT_TRAIT_WANTED), "message" = "\"[get_trait_display_name(TAT_TRAIT_DIVINE_BOON_3)]\" requires previous divine progression and a qualifying job role or Wanted."),
+		TAT_TRAIT_DIVINE_BOON_4 = list("all" = list(TAT_TRAIT_DIVINE_INITIATE, TAT_TRAIT_DIVINE_BOON_3), "any" = list(TAT_TRAIT_CHURCHLING, TAT_TRAIT_WILD_SOUL, TAT_TRAIT_WANTED), "message" = "\"[get_trait_display_name(TAT_TRAIT_DIVINE_BOON_4)]\" requires tier 3 divine progression and Churchling, Wild Soul, or Wanted."),
+		TAT_TRAIT_MAGE_INITIATE = list("any" = list(TRAIT_ARCYNE, TAT_TRAIT_ACADEMY_STAFF), "message" = "\"[get_trait_display_name(TAT_TRAIT_MAGE_INITIATE)]\" requires Arcyne Training or Academy Staff."),
+		TAT_TRAIT_MAGE_MINOR_SLOT_1 = list("all" = list(TAT_TRAIT_MAGE_INITIATE), "any" = list(TAT_TRAIT_SQUIRE, TAT_TRAIT_ADVENTURER, TAT_TRAIT_MERCENARY, TAT_TRAIT_TEMPLAR, TAT_TRAIT_CHURCHLING, TAT_TRAIT_WILD_SOUL, TAT_TRAIT_WANTED), "message" = "\"[get_trait_display_name(TAT_TRAIT_MAGE_MINOR_SLOT_1)]\" requires Mage Initiate and a qualifying job role or Wanted."),
 		TAT_TRAIT_SPELLBLADE = list("all" = list(TAT_TRAIT_MAGE_INITIATE, TRAIT_ARCYNE), "message" = "\"[get_trait_display_name(TAT_TRAIT_SPELLBLADE)]\" requires mage initiation and arcyne."),
 		TAT_TRAIT_MAGE_MINOR_SLOT_2 = list("all" = list(TAT_TRAIT_MAGE_MINOR_SLOT_1), "message" = "\"[get_trait_display_name(TAT_TRAIT_MAGE_MINOR_SLOT_2)]\" requires \"[get_trait_display_name(TAT_TRAIT_MAGE_MINOR_SLOT_1)]\"."),
+		TAT_TRAIT_MAGE_MAJOR_SLOT = list("all" = list(TAT_TRAIT_MAGE_INITIATE), "any" = list(TAT_TRAIT_ACADEMY_STAFF, TAT_TRAIT_MERCENARY, TAT_TRAIT_WILD_SOUL, TAT_TRAIT_WANTED), "message" = "\"[get_trait_display_name(TAT_TRAIT_MAGE_MAJOR_SLOT)]\" requires Mage Initiate and a qualifying job role or Wanted."),
+		TAT_TRAIT_MAGE_UTILITY_SLOT = list("all" = list(TAT_TRAIT_MAGE_INITIATE), "any" = list(TAT_TRAIT_ACADEMY_STAFF, TAT_TRAIT_MERCENARY, TAT_TRAIT_WILD_SOUL, TAT_TRAIT_WANTED), "message" = "\"[get_trait_display_name(TAT_TRAIT_MAGE_UTILITY_SLOT)]\" requires Mage Initiate and a qualifying job role or Wanted."),
+		TAT_TRAIT_SERVANTS_PRECISION = list("any" = list(TAT_TRAIT_KEEP_SERVANTRY, TAT_TRAIT_INN_HIRE), "message" = "\"[get_trait_display_name(TAT_TRAIT_SERVANTS_PRECISION)]\" requires Keep Servantry or Inn Hire."),
+		TAT_TRAIT_WARRIOR_EXPERT = list("any" = list(TAT_TRAIT_MERCENARY, TAT_TRAIT_TEMPLAR, TAT_TRAIT_TOWN_GUARD, TAT_TRAIT_KNIGHT, TAT_TRAIT_WILD_SOUL, TAT_TRAIT_WANTED), "message" = "\"[get_trait_display_name(TAT_TRAIT_WARRIOR_EXPERT)]\" requires Mercenary, Templar, Town Guard, Knight, Wild Soul, or Wanted."),
 		TRAIT_BITERHELM = list("all" = list(TAT_TRAIT_HERETIC), "message" = "\"[get_trait_display_name(TRAIT_BITERHELM)]\" requires \"[get_trait_display_name(TAT_TRAIT_HERETIC)]\"."),
 		TRAIT_RITUALIST = list("all" = list(TAT_TRAIT_HERETIC, TAT_TRAIT_DIVINE_BOON_2), "message" = "\"[get_trait_display_name(TRAIT_RITUALIST)]\" requires \"[get_trait_display_name(TAT_TRAIT_HERETIC)]\" and \"[get_trait_display_name(TAT_TRAIT_DIVINE_BOON_2)]\"."),
 		TAT_TRAIT_ARTIFACTS_SUPPLIER = list("all" = list(TAT_TRAIT_PARTY_LEADER), "message" = "\"[get_trait_display_name(TAT_TRAIT_ARTIFACTS_SUPPLIER)]\" requires \"[get_trait_display_name(TAT_TRAIT_PARTY_LEADER)]\"."),
@@ -417,29 +441,44 @@
 /datum/tat_traits/proc/trait_requirement_is_met(list/rule)
 	if(!islist(rule))
 		return TRUE
+	// Trait prerequisites must be selected in the build; virtue-granted traits do not satisfy them.
 	var/list/all_requirements = rule["all"]
 	if(islist(all_requirements))
 		for(var/required_trait in all_requirements)
 			if(!has_trait(required_trait))
 				return FALSE
+	var/list/any_requirements = rule["any"]
+	if(islist(any_requirements) && length(any_requirements))
+		var/has_any_requirement = FALSE
+		for(var/required_trait in any_requirements)
+			if(has_trait(required_trait))
+				has_any_requirement = TRUE
+				break
+		if(!has_any_requirement)
+			return FALSE
 	return TRUE
 
 /datum/tat_traits/proc/has_defensive_trait_lockout()
+	var/haslockout = FALSE
 	if(has_effective_trait(TRAIT_DODGEEXPERT))
-		return TRUE
-	if(has_effective_trait(TRAIT_PARRYEXPERT))
-		return TRUE
-	if(has_effective_trait(TRAIT_CRITICAL_RESISTANCE))
-		return TRUE
-	if(has_effective_trait(TRAIT_MEDIUMARMOR))
-		return TRUE
-	if(has_effective_trait(TRAIT_HEAVYARMOR))
-		return TRUE
-	return FALSE
+		haslockout = TRUE
+	else if(has_effective_trait(TRAIT_PARRYEXPERT))
+		haslockout = TRUE
+	else if(has_effective_trait(TRAIT_CRITICAL_RESISTANCE))
+		haslockout = TRUE
+	else if(has_effective_trait(TRAIT_MEDIUMARMOR))
+		haslockout = TRUE
+	else if(has_effective_trait(TRAIT_HEAVYARMOR))
+		haslockout = TRUE
+	else if(has_effective_trait(TRAIT_BLOOD_RESISTANCE))
+		haslockout = TRUE
+	return haslockout
 
 /datum/tat_traits/proc/are_traits_mutually_exclusive(trait_a, trait_b)
 	if(!trait_a || !trait_b || trait_a == trait_b)
 		return null
+	if((trait_a in TAT_JOB_ROLE_TRAITS) && (trait_b in TAT_JOB_ROLE_TRAITS))
+		return "Only one job role can be selected."
 
 	if(has_trait(TAT_TRAIT_WANTED))
 		if((trait_a == TRAIT_NOPAINSTUN && (trait_b == TAT_TRAIT_MAGE_INITIATE || trait_b == TAT_TRAIT_DIVINE_BOON_2)) || (trait_b == TRAIT_NOPAINSTUN && (trait_a == TAT_TRAIT_MAGE_INITIATE || trait_a == TAT_TRAIT_DIVINE_BOON_2)))
@@ -458,6 +497,16 @@
 
 /datum/tat_traits/proc/has_invalid_trait_dependencies()
 	var/list/issues = list()
+	if(get_defensive_trait_count() > 3)
+		issues += "A build may have no more than three defensive traits."
+
+	for(var/trait_id in selected)
+		var/pq_minimum = get_pq_lock_minimum(trait_id)
+		if(pq_minimum > 0 && (owner_build?.get_owner_playerquality() || 0) < pq_minimum)
+			issues += "\"[get_trait_display_name(trait_id)]\" requires Player Quality [pq_minimum] or higher."
+		if(has_external_trait(trait_id) && get_base_cost(trait_id) < 0)
+			issues += "\"[get_trait_display_name(trait_id)]\" is already granted by an active virtue and cannot also be purchased for points."
+
 	var/list/requirements = get_trait_requirement_map()
 	for(var/trait_id in requirements)
 		if(!has_trait(trait_id))
@@ -466,8 +515,6 @@
 		if(trait_requirement_is_met(rule))
 			continue
 		issues += (rule["message"] || "Trait has unmet requirements.")
-	if((has_trait(TAT_TRAIT_MAGE_MAJOR_SLOT) || has_trait(TAT_TRAIT_MAGE_MINOR_SLOT_1) || has_trait(TAT_TRAIT_MAGE_UTILITY_SLOT)) && !has_trait(TAT_TRAIT_MAGE_INITIATE))
-		issues += "Mage spell slots require \"[get_trait_display_name(TAT_TRAIT_MAGE_INITIATE)]\"."
 	var/list/effective_traits = get_effective_trait_counts()
 	for(var/trait_a in effective_traits)
 		for(var/trait_b in effective_traits)
@@ -487,6 +534,8 @@
 	if(has_trait(TAT_TRAIT_DIVINE_BOON_2))
 		tier++
 	if(has_trait(TAT_TRAIT_DIVINE_BOON_3))
+		tier++
+	if(has_trait(TAT_TRAIT_DIVINE_BOON_4))
 		tier++
 	return clamp(tier, CLERIC_T0, CLERIC_T4)
 
@@ -578,9 +627,11 @@
 		owner_build?.grant_mind_spell_if_missing(H, spell_type)
 
 /datum/tat_traits/proc/apply_divine_package(mob/living/carbon/human/H)
-	if(!H || !has_trait(TAT_TRAIT_DIVINE_INITIATE))
+	if(!H || !(has_trait(TAT_TRAIT_DIVINE_INITIATE) || has_trait(TAT_TRAIT_CHURCHLING)))
 		return
 	var/cleric_tier = get_effective_divine_tier()
+	if(has_trait(TAT_TRAIT_CHURCHLING))
+		cleric_tier = max(cleric_tier, CLERIC_T1)
 	var/passive_gain = get_divine_passive_gain_for_tier(cleric_tier)
 	var/devotion_limit = get_divine_devotion_limit_for_tier(cleric_tier)
 	var/datum/devotion/D = new /datum/devotion(H, H.patron)
@@ -634,9 +685,9 @@
 	H.mind.AddSpell(new /datum/action/cooldown/spell/mending)
 
 /datum/tat_traits/proc/get_pliant_rename_prefix()
-	if(!has_trait(TRAIT_OUTLANDER) && !has_trait(TAT_TRAIT_RESIDENT))
+	if(!has_trait(TAT_TRAIT_ADVENTURER) && !has_trait(TAT_TRAIT_RESIDENT))
 		return "Straying Pliant"
-	if(has_trait(TRAIT_OUTLANDER))
+	if(has_trait(TAT_TRAIT_ADVENTURER))
 		return "Wandering Pliant"
 	if(has_trait(TAT_TRAIT_RESIDENT))
 		return "Local Pliant"
@@ -822,6 +873,9 @@
 	return get_pliant_current_class_name(H)
 
 /datum/tat_traits/proc/get_pliant_plain_class_title(mob/living/carbon/human/H)
+	var/jobrole_title = get_jobrole_title()
+	if(jobrole_title)
+		return get_pliant_safe_class_name(jobrole_title)
 	var/fallback = get_pliant_current_class_name(H)
 	var/list/display_to_title = build_pliant_role_title_choices()
 	if(!length(display_to_title))
@@ -934,13 +988,34 @@
 	for(var/trait_id in selected)
 		if(is_repeatable_trait(trait_id))
 			continue
+		if(trait_id in TAT_JOB_ROLE_TRAITS)
+			continue
 		switch(trait_id)
-			if(TAT_TRAIT_WARRIOR_EXPERT, TAT_TRAIT_WARRIOR_MASTER, TAT_TRAIT_RESIDENT, TAT_TRAIT_STEEL_SUPPLIER, TAT_TRAIT_SILVER_SUPPLIER, TAT_TRAIT_BRONZE_SUPPLIER, TAT_TRAIT_LEATHER_SUPPLIER, TAT_TRAIT_MAIL_SUPPLIER, TAT_TRAIT_PLATE_SUPPLIER, TAT_TRAIT_SPELLBLADE, TAT_TRAIT_BARDIC_INSPIRATION_T1, TAT_TRAIT_BARDIC_INSPIRATION_T2, TAT_TRAIT_PARTY_LEADER, TAT_TRAIT_BONUS_STAT_POOL, TAT_TRAIT_WANTED, TAT_TRAIT_DIVINE_INITIATE, TAT_TRAIT_MAGE_INITIATE, TAT_TRAIT_ARTIFACTS_SUPPLIER, TAT_TRAIT_FIREARMS_SUPPLIER, TAT_TRAIT_MASTER_OF_WANDERING, TAT_TRAIT_STRAYING_SOUL, TAT_TRAIT_PLIANT_RENAME, TAT_TRAIT_SAVAGE_SKIN, TAT_TRAIT_SAVAGE_RAGE, TAT_TRAIT_HERETIC, TAT_TRAIT_BERSERKER_RAGE, TAT_TRAIT_LOOTRAT, TRAIT_SHIRTLESS, TAT_TRAIT_LOOTRAT_2)
+			if(TAT_TRAIT_WARRIOR_EXPERT, TAT_TRAIT_WARRIOR_MASTER, TAT_TRAIT_RESIDENT, TAT_TRAIT_STEEL_SUPPLIER, TAT_TRAIT_SILVER_SUPPLIER, TAT_TRAIT_BRONZE_SUPPLIER, TAT_TRAIT_LEATHER_SUPPLIER, TAT_TRAIT_MAIL_SUPPLIER, TAT_TRAIT_PLATE_SUPPLIER, TAT_TRAIT_SPELLBLADE, TAT_TRAIT_BARDIC_INSPIRATION_T1, TAT_TRAIT_BARDIC_INSPIRATION_T2, TAT_TRAIT_PARTY_LEADER, TAT_TRAIT_WANTED, TAT_TRAIT_DIVINE_INITIATE, TAT_TRAIT_MAGE_INITIATE, TAT_TRAIT_ARTIFACTS_SUPPLIER, TAT_TRAIT_FIREARMS_SUPPLIER, TAT_TRAIT_MASTER_OF_WANDERING, TAT_TRAIT_STRAYING_SOUL, TAT_TRAIT_PLIANT_RENAME, TAT_TRAIT_SAVAGE_SKIN, TAT_TRAIT_SAVAGE_RAGE, TAT_TRAIT_HERETIC, TAT_TRAIT_BERSERKER_RAGE, TAT_TRAIT_LOOTRAT, TRAIT_SHIRTLESS, TAT_TRAIT_LOOTRAT_2, TAT_TRAIT_UNARMED_EXPERT, TAT_TRAIT_SHIELD_TRAINING, TAT_TRAIT_SERVANTS_PRECISION, TAT_TRAIT_SOLVED_RIDDLE)
 				continue
 			else
 				ADD_TRAIT(H, trait_id, TAT_TRAIT_SOURCE)
 	if(has_trait(TAT_TRAIT_RESIDENT))
 		apply_resident_package(H)
+	else if(has_jobrole_account() && !(H in SStreasury.bank_accounts))
+		SStreasury.create_bank_account(H, 0)
+	if(has_trait(TAT_TRAIT_SOILSON))
+		ADD_TRAIT(H, TRAIT_NOSTINK, TAT_TRAIT_SOURCE)
+	if(has_trait(TAT_TRAIT_INN_HIRE))
+		ADD_TRAIT(H, TRAIT_CICERONE, TAT_TRAIT_SOURCE)
+	if(has_trait(TAT_TRAIT_SHOP_HIRE))
+		ADD_TRAIT(H, TRAIT_SEEPRICES, TAT_TRAIT_SOURCE)
+	if(has_trait(TAT_TRAIT_KNIGHT))
+		ADD_TRAIT(H, TRAIT_NOBLE, TAT_TRAIT_SOURCE)
+	if(has_trait(TAT_TRAIT_SQUIRE))
+		ADD_TRAIT(H, TRAIT_SQUIRE_REPAIR, TAT_TRAIT_SOURCE)
+	if(has_trait(TAT_TRAIT_ACADEMY_STAFF))
+		ADD_TRAIT(H, TRAIT_ARCYNE, TAT_TRAIT_SOURCE)
+	if(has_trait(TAT_TRAIT_WILD_SOUL))
+		ADD_TRAIT(H, TRAIT_OUTDOORSMAN, TAT_TRAIT_SOURCE)
+		ADD_TRAIT(H, TRAIT_AZURENATIVE, TAT_TRAIT_SOURCE)
+		ADD_TRAIT(H, TRAIT_WILD_EATER, TAT_TRAIT_SOURCE)
+		ADD_TRAIT(H, TRAIT_FERAL, TAT_TRAIT_SOURCE)
 	if(has_trait(TAT_TRAIT_SPELLBLADE))
 		apply_spellblade_base_package(H)
 
@@ -1208,10 +1283,3 @@
 		return
 
 	H.advjob = applied_name
-
-/datum/tat_traits/proc/get_outlander_natural_potential_discount(trait_id)
-	if(trait_id != TAT_TRAIT_BONUS_STAT_POOL)
-		return 0
-	if(!has_trait(TRAIT_OUTLANDER))
-		return 0
-	return 10

@@ -12,6 +12,19 @@
 	names[TAT_ROLE_BUCKET_TRADER] = "Trader"
 	names[TAT_ROLE_BUCKET_ADVENTURER] = "Adventurer"
 	names[TAT_ROLE_BUCKET_WRETCH] = "Wretch"
+	names[TAT_ROLE_BUCKET_GUILDER] = "Guilder"
+	names[TAT_ROLE_BUCKET_SOILSON] = "Soilson"
+	names[TAT_ROLE_BUCKET_INN_HIRE] = "Inn Hire"
+	names[TAT_ROLE_BUCKET_SHOP_HIRE] = "Shop Hire"
+	names[TAT_ROLE_BUCKET_KEEP_SERVANTRY] = "Keep Servantry"
+	names[TAT_ROLE_BUCKET_TOWN_GUARD] = "Town Guard"
+	names[TAT_ROLE_BUCKET_KNIGHT] = "Knight"
+	names[TAT_ROLE_BUCKET_SQUIRE] = "Squire"
+	names[TAT_ROLE_BUCKET_CHURCHLING] = "Churchling"
+	names[TAT_ROLE_BUCKET_TEMPLAR] = "Templar"
+	names[TAT_ROLE_BUCKET_ACADEMY_STAFF] = "Academy Staff"
+	names[TAT_ROLE_BUCKET_MERCENARY] = "Mercenary"
+	names[TAT_ROLE_BUCKET_WILD_SOUL] = "Wild Soul"
 	return names
 
 /proc/tat_is_valid_role_bucket(bucket)
@@ -33,23 +46,46 @@
 			return TAT_SQL_ROLE_ADVENTURER
 		if(TAT_ROLE_BUCKET_WRETCH)
 			return TAT_SQL_ROLE_WRETCH
+		if(TAT_ROLE_BUCKET_GUILDER) //OPK EDIT START
+			return TAT_SQL_ROLE_GUILDER
+		if(TAT_ROLE_BUCKET_SOILSON)
+			return TAT_SQL_ROLE_SOILSON
+		if(TAT_ROLE_BUCKET_INN_HIRE)
+			return TAT_SQL_ROLE_INN_HIRE
+		if(TAT_ROLE_BUCKET_SHOP_HIRE)
+			return TAT_SQL_ROLE_SHOP_HIRE
+		if(TAT_ROLE_BUCKET_KEEP_SERVANTRY)
+			return TAT_SQL_ROLE_KEEP_SERVANTRY
+		if(TAT_ROLE_BUCKET_TOWN_GUARD)
+			return TAT_SQL_ROLE_TOWN_GUARD
+		if(TAT_ROLE_BUCKET_KNIGHT)
+			return TAT_SQL_ROLE_KNIGHT
+		if(TAT_ROLE_BUCKET_SQUIRE)
+			return TAT_SQL_ROLE_SQUIRE
+		if(TAT_ROLE_BUCKET_CHURCHLING)
+			return TAT_SQL_ROLE_CHURCHLING
+		if(TAT_ROLE_BUCKET_TEMPLAR)
+			return TAT_SQL_ROLE_TEMPLAR
+		if(TAT_ROLE_BUCKET_ACADEMY_STAFF)
+			return TAT_SQL_ROLE_ACADEMY_STAFF
+		if(TAT_ROLE_BUCKET_MERCENARY)
+			return TAT_SQL_ROLE_MERCENARY
+		if(TAT_ROLE_BUCKET_WILD_SOUL)
+			return TAT_SQL_ROLE_WILD_SOUL
 	return null
 
 /proc/tat_ban_role_to_role_bucket(role)
-	switch(role)
-		if(TAT_SQL_ROLE_TOWNER)
-			return TAT_ROLE_BUCKET_TOWNER
-		if(TAT_SQL_ROLE_TRADER)
-			return TAT_ROLE_BUCKET_TRADER
-		if(TAT_SQL_ROLE_ADVENTURER)
-			return TAT_ROLE_BUCKET_ADVENTURER
-		if(TAT_SQL_ROLE_WRETCH)
-			return TAT_ROLE_BUCKET_WRETCH
+	for(var/bucket in tat_role_bucket_names())
+		if(tat_role_bucket_to_ban_role(bucket) == role)
+			return bucket
 	return null
 
 /proc/tat_all_sql_role_locks()
-	return list(TAT_SQL_ROLE_TOWNER, TAT_SQL_ROLE_TRADER, TAT_SQL_ROLE_ADVENTURER, TAT_SQL_ROLE_WRETCH)
-
+	var/list/roles = list()
+	for(var/bucket in tat_role_bucket_names())
+		roles += tat_role_bucket_to_ban_role(bucket)
+	return roles
+//OPK EDIT END
 /proc/tat_is_ckey_banned(raw_key)
 	var/key = tat_normalize_ckey(raw_key)
 	if(!key)
