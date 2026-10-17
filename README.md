@@ -1,8 +1,8 @@
 # OLD PIDGEON'S KEEP
-
+While the server is under construction, I'm not advertising the discord, but I'll leave it here.  Honestly, if you care enough to find this shit, you can come question me about it.
 | Website                   | Link                                           |
 |---------------------------|------------------------------------------------|
-| Discord | TBA                                                              |
+| Discord | https://discord.gg/eStE3k38J9               |
 | Code    | [https://github.com/Old-Pidgeon's Keep/Old-Pidgeon's-Keep](https://github.com/Old-Pidgeons-Keep/Old-Pidgeons-Keep)    |
 | Wiki    | [https://ochrevalley.miraheze.org/wiki/Main_Page](https://ochrevalley.miraheze.org/wiki/Main_Page) |
 

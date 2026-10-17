@@ -225,7 +225,7 @@ export class Changelog extends Component {
         </p>
         <p>
           {'Check for any new announcements on the discord '}
-          <a href="">
+          <a href="https://discord.gg/eStE3k38J9">
             here
           </a>
           .

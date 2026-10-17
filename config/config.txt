@@ -262,14 +262,14 @@ USEBLACKLIST
 ## Don't set this to the same server, BYOND will automatically restart players to the server when it has restarted.
 # SERVER ss13.example.com:2506
 
-## Discod address
-# DISCORDURL https://discord.gg/E2ay9BUszE
+## Discord address
+DISCORDURL https://discord.gg/eStE3k38J9
 
 ## Wiki address
 WIKIURL https://ochrevalley.miraheze.org
 
 ## Rules address
-# RULESURL https://ochrevalley.miraheze.org/wiki/Rules
+# RULESURL https://discord.com/channels/1529997646520127578/1547385321262424114
 
 ## Github address
 GITHUBURL https://github.com/Old-Pidgeons-Keep/Old-Pidgeons-Keep/
