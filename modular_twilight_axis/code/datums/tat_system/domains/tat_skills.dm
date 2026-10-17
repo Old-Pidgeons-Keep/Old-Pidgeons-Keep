@@ -5,12 +5,12 @@
 	var/list/domain_points = list()
 	var/skill_point_conversion_pool = 0
 	var/list/spent_points_cache = list()
-	var/_cached_combat_expert_count = -1
-	var/_cached_combat_master_count = -1
+	var/_cached_combat_expert_count = -3
+	var/_cached_combat_master_count = -2
 
 /datum/tat_skills/proc/invalidate_combat_count_cache()
-	_cached_combat_expert_count = -1
-	_cached_combat_master_count = -1
+	_cached_combat_expert_count = -3
+	_cached_combat_master_count = -2
 
 /datum/tat_skills/New(datum/tat_build/B)
 	. = ..()
