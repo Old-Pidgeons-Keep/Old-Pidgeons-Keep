@@ -292,7 +292,7 @@
 				H.mind.AddSpell(new /datum/action/cooldown/spell/grasp_of_psydon)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/blink/shadowstep)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/mending)
-				H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 2, "utilities" = 5, "locked_aspects" = list(/datum/magic_aspect/lesser_augmentation)))
+				H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 2, "utilities" = 5, "locked_aspects" = list(/datum/magic_aspect/augmentation)))
 				//opk add end
 		if("Wandering Yogi (Vizier)")
 			H.set_patron(/datum/patron/old_god)
