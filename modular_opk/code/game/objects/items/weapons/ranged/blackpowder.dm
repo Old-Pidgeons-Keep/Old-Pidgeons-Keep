@@ -52,7 +52,12 @@
 	var/spread_num = 10 //This spread value is eventually translated into the random angle it will spread from the intended firing path - if not fully charged
 	damfactor = 1 //Default 1 here translates to 100 damage when fired
 	var/range = 30 //The shot will have it's range set to this when fired
-	var/load_time = 50 //Ticks it takes to load the weapon
+	var/load_time = 25 //Ticks it takes to load the weapon
+	draw_base = CROSSBOW_DRAW_BASE
+	draw_floor = CROSSBOW_DRAW_FLOOR
+	draw_per_skill = CROSSBOW_DRAW_PER_SKILL
+	onehanded_draw_mult = CROSSBOW_ONEHANDED_DRAW_MULT
+	onehanded_arc_draw_mult = CROSSBOW_ONEHANDED_ARC_DRAW_MULT
 
 /obj/item/gun/ballistic/revolver/grenadelauncher/blackpowder/Initialize()
 	. = ..()
@@ -553,7 +558,7 @@
 	var/open_sound = 'modular_causticcove/sound/arquebus/musketcock.ogg'
 	fire_sound = 'modular_causticcove/sound/arquebus/arquefire3.ogg'
 	anvilrepair = /datum/skill/craft/weaponsmithing
-	smeltresult = /obj/item/ash
+	smeltresult = /obj/item/natural/ash
 	pickup_sound = 'modular_causticcove/sound/sheath_sounds/draw_from_holster.ogg'
 
 	slot_flags = ITEM_SLOT_HIP | ITEM_SLOT_BACK

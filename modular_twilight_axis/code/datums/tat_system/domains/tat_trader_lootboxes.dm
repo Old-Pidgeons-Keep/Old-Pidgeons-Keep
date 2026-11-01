@@ -246,7 +246,7 @@ GLOBAL_LIST_INIT(tat_trader_lootbox_expensive_base_pool, list(
 	/obj/item/rogueweapon/shield/tower/metal/psy = 4,
 	/obj/item/rogueweapon/stoneaxe/battle/ice = 4,
 	/obj/item/rogueweapon/sword/sabre/bane = 4,
-	/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fencer/psydon = 2,
+	///obj/item/clothing/suit/roguetown/armor/plate/cuirass/fencer/psydon = 2, //We're just taking this one out, it seems like it doesn't exist anymore.
 	/obj/item/quiver/bolt/heavy/silver = 5,
 	/obj/item/quiver/bolt/silver = 5,
 	/obj/item/quiver/silver = 5,
