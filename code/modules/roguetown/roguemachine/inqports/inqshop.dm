@@ -273,6 +273,22 @@
 	new /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow/heavy/relic/marque(src)
 	new /obj/item/quiver/bolt/heavy/stake_silver(src)
 
+//Caustic Edit - Add in the Boomstick!
+/datum/inqports/articles/boomstick
+	name = "Relic - The Boomstick, Bane of Undead"
+	item_type = /obj/structure/closet/crate/chest/inqreliquary/relic/boomstick/
+	marquescost = 24
+	maximum = 1
+
+/obj/structure/closet/crate/chest/inqreliquary/relic/boomstick/Initialize()
+	. = ..()
+	new /obj/item/gun/ballistic/revolver/grenadelauncher/blackpowder/small/boomstick(src)
+	new /obj/item/ammo_casing/caseless/rogue/bullet/blackpowder/boomstick_round(src)
+	new /obj/item/ammo_casing/caseless/rogue/bullet/blackpowder/boomstick_round(src)
+	new /obj/item/ammo_casing/caseless/rogue/bullet/blackpowder/boomstick_round(src)
+	new /obj/item/ammo_casing/caseless/rogue/bullet/blackpowder/boomstick_round(src)
+//Caustic Edit End
+
 /datum/inqports/articles/psyarmor
 	name = "Relic - The Platemaille, Everwithstanding"
 	item_type = /obj/structure/closet/crate/chest/inqreliquary/relic/psyarmor/

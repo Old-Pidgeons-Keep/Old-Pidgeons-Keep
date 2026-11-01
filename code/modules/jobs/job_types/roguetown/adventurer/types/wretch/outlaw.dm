@@ -88,7 +88,7 @@
 			//OV EDIT
 			if("Arquebus Pistol")
 				H.adjust_skillrank_up_to(/datum/skill/combat/firearms, SKILL_LEVEL_EXPERT, TRUE)
-				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/arquebus/pistol
+				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/blackpowder/small/arquebus_pistol
 				beltr = /obj/item/quiver/bulletpouch/iron
 				backpack_contents = list(
 					/obj/item/lockpickring/mundane = 1,

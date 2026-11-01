@@ -25,6 +25,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	Failing all that, the standard sanity checks are performed. They simply check the data is suitable, reverting to
 	initial() values if necessary.
 */
+
 /datum/preferences/proc/savefile_needs_update(savefile/S)
 	var/savefile_version
 	S["version"] >> savefile_version
@@ -181,12 +182,25 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	// Custom hotkeys
 	S["key_bindings"]		>> key_bindings
 
+	//OPK edit
+	var/list/tat_preflist
+	S["tat_build"]			>> tat_preflist
+
+	if(!tat_build)
+		tat_build = new(src)
+	//OPK + CC + TA edit end
+
 	//try to fix any outdated data if necessary
 	if(needs_update >= 0)
 		update_preferences(needs_update, S)		//needs_update = savefile_version if we need an update (positive integer)
 
 	//Sanitize
 	sanitize_preferences()
+	tat_build.load_from_list(sanitize_islist(tat_preflist, list())) //OPK + CC + TA edit
+	//preserves existing sanitize_preferences functionality for other things, allows
+	//for the required tat_preflist var to be seen by both procs.  It's slightly out of order,
+	//but sue me.  These were all one proc before, and there's basically no reason they're not now.
+	//Nothing else calls this.
 
 	return TRUE
 
@@ -424,7 +438,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	///Caustic edit end
 	//OV Edit: Any persistent OV Prefs
 	WRITE_FILE(S["block_mindlink"], block_mindlink)
-	//OV Edit Start
+	//OV Edit end
+	WRITE_FILE(S["tat_build"], tat_build.export_to_list()) //OPK + CC + TA edit
 	return TRUE
 
 

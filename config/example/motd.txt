@@ -1,3 +1,2 @@
 <!-- Most valid html will work in here, excluding images. -->
-Ochre Valley Discord Server: <a href="https://discord.gg/EGdTj3ranK">https://discord.gg/EGdTj3ranK</a>
-Ochre Valley Kofi: <a href="https://ko-fi.com/ochrevalley">https://ko-fi.com/ochrevalley</a>
+

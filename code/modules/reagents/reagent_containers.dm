@@ -83,8 +83,56 @@
 			var/who = (isnull(user) || eater == user) ? "my" : "[eater.p_their()]"
 			to_chat(user, span_warning("I have to remove [who] [covered] first!"))
 		return FALSE
-	return TRUE
+// CC Edit Begin
 
+	//This entire section is related to the Mangled Jaw vice. It issues pain via a wounding system with multiple stages.
+	// It uses wounds so that people can nullify it with drugs or miracles.
+	// Note that technically people can proc immediate pain by force feeding them something like a drink and cause them to get insane amounts of pain...
+	// But... That's why you wear masks and helmets...
+	if(ishuman(C))
+		if(HAS_TRAIT(C, TRAIT_MANGLED_JAW))
+			var/painpercent = (C.get_complex_pain() / C.pain_threshold) * 100
+			if(painpercent >= 50)
+				to_chat(C, span_warning("It hurts!"))
+			for(var/obj/item/bodypart/head/head in C.bodyparts)
+				if(head.status == BODYPART_ROBOTIC || head.skeletonized)
+					continue
+				//Should only return one wound at a time.
+				var/jaw_abuse_found
+				for(var/datum/wound/jaw_abuse/jaw_wound in head.wounds)
+					jaw_abuse_found = TRUE
+					if(prob(10))
+						visible_message(span_notice("[C.name] struggles to swallow."))
+					var/cur_stage = jaw_wound.stage
+					if(cur_stage >= 4) //High pain stage. If you can manage to tolerate the pain however you're good.
+						if(painpercent >= 33)
+							to_chat(C, span_warning("I can't consume this! It hurts too much!"))
+							if(C == user)
+								visible_message(span_warning("[C.name] struggles to open their jaw."))
+								return FALSE
+							else //Handle when another player force feeds them.
+								visible_message(span_warning("[user.name] forces [C.name] to open their mouth."))
+								cur_stage++
+								if(cur_stage > 5)
+									jaw_wound.refresh()
+									break
+								head.remove_wound(jaw_wound)
+								head.add_wound(jaw_wound.jaw_wounds_ascending[cur_stage])
+								break
+						else //Refresh the duration for tolerating the pain.
+							to_chat(C, span_warning("I manage to tolerate the pain."))
+							jaw_wound.refresh()
+							break
+					cur_stage++ //Iterate to the next stage on the list.
+					head.remove_wound(jaw_wound)
+					head.add_wound(jaw_wound.jaw_wounds_ascending[cur_stage])
+					break
+				//Only give us the first stage if we cannot find any jaw wounds prior.
+				if(!jaw_abuse_found)
+					head.add_wound(/datum/wound/jaw_abuse/first_stage)
+
+	//CC Edit End
+	return TRUE
 /obj/item/reagent_containers/ex_act()
 	if(reagents)
 		for(var/datum/reagent/R in reagents.reagent_list)
